@@ -41,6 +41,12 @@ public struct CMUXMobileRootScene: View {
     /// non-iOS roots, which simply shows no Tailscale guidance.
     private let tailscaleStatusMonitor: (any TailscaleStatusObserving)?
     private let pairedMacStore: (any MobilePairedMacStoring)?
+    /// Per-terminal composer drafts for the app session, so an unsent message
+    /// survives keyboard dismiss and terminal switches. In-memory only for now;
+    /// a disk-backed ``TerminalDraftStoring`` (drafts surviving relaunch) lands
+    /// separately and replaces this at the composition root without touching the
+    /// shell.
+    private let draftStore: any TerminalDraftStoring
     #if DEBUG
     /// The structured diagnostic log injected into the shell store so the DEV
     /// dogfood feedback round-trip can export it. DEBUG-only; `nil` when the app
@@ -82,6 +88,7 @@ public struct CMUXMobileRootScene: View {
         self.displaySettings = displaySettings
         self.tailscaleStatusMonitor = tailscaleStatusMonitor
         self.pairedMacStore = Self.openPairedMacStore()
+        self.draftStore = InMemoryTerminalDraftStore()
         #if DEBUG
         self.diagnosticLog = diagnosticLog
         #endif
@@ -100,6 +107,7 @@ public struct CMUXMobileRootScene: View {
         self.analytics = analytics
         self.tailscaleStatusMonitor = nil
         self.pairedMacStore = Self.openPairedMacStore()
+        self.draftStore = InMemoryTerminalDraftStore()
         #if DEBUG
         self.diagnosticLog = nil
         #endif
@@ -175,7 +183,8 @@ public struct CMUXMobileRootScene: View {
             identityProvider: identityProvider,
             reachability: reachability,
             analytics: analytics,
-            diagnosticLog: diagnosticLog
+            diagnosticLog: diagnosticLog,
+            draftStore: draftStore
         )
         #else
         return CMUXMobileShellStore(
@@ -184,7 +193,8 @@ public struct CMUXMobileRootScene: View {
             deviceRegistry: deviceRegistry,
             identityProvider: identityProvider,
             reachability: reachability,
-            analytics: analytics
+            analytics: analytics,
+            draftStore: draftStore
         )
         #endif
     }
