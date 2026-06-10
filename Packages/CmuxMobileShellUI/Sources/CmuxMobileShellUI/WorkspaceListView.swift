@@ -22,6 +22,9 @@ struct WorkspaceListView: View {
     /// single line. Passed in as a value snapshot so no `@Observable` store
     /// crosses the `List` boundary.
     let wrapWorkspaceTitles: Bool
+    /// How many lines each row's activity preview shows (1 or 2). Passed in as
+    /// a value snapshot so no `@Observable` store crosses the `List` boundary.
+    var previewLineLimit: Int = MobileDisplaySettings.defaultWorkspacePreviewLineCount
     let selectWorkspace: (MobileWorkspacePreview.ID) -> Void
     let createWorkspace: () -> Void
     /// Optional: when present, the toolbar shows a "settings" menu offering
@@ -189,6 +192,7 @@ struct WorkspaceListView: View {
             isSelected: navigationStyle == .sidebar && selectedWorkspaceID == workspace.id,
             navigationStyle: navigationStyle,
             wrapWorkspaceTitles: wrapWorkspaceTitles,
+            previewLineLimit: previewLineLimit,
             selectWorkspace: selectWorkspace,
             renameWorkspace: renameWorkspace,
             setPinned: setPinned
